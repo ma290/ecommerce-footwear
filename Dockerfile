@@ -22,8 +22,12 @@ FROM nginx:alpine
 # Copy the built files from the previous stage to Nginx's html directory
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80 to the outside
-EXPOSE 80
+# Change default port from 80 to 8000 for Koyeb compatibility
+RUN sed -i 's/listen  *80;/listen 8000;/g' /etc/nginx/conf.d/default.conf
+RUN sed -i 's/listen  *\[::\]:80;/listen [::]:8000;/g' /etc/nginx/conf.d/default.conf
+
+# Expose port 8000 to the outside
+EXPOSE 8000
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
