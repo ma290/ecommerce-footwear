@@ -1,8 +1,26 @@
-import { useEffect } from 'react';
-import { ShoppingBag, Search, Menu } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { ShoppingBag, Search, Menu, X } from 'lucide-react';
 import './index.css';
 
 function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Close drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) setMenuOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
+  // Scroll-reveal animation
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -16,41 +34,88 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
   return (
     <div className="app-container">
-      {/* Global Navigation */}
-      <nav className="global-nav">
-        <div className="global-nav-content">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+
+      {/* ── Sticky Header: global-nav + sub-nav stacked ── */}
+      <header className="sticky-header">
+        {/* Global Navigation */}
+        <nav className="global-nav" aria-label="Main navigation">
+          <div className="global-nav-content">
             <span className="nav-brand">RNT FOOTWEAR</span>
+
+            <div className="global-nav-links" role="list">
+              <a href="#" role="listitem">Home</a>
+              <a href="#about" role="listitem">About Us</a>
+              <a href="#products" role="listitem">Products</a>
+              <a href="#contact" role="listitem">Contact</a>
+            </div>
+
+            <div className="nav-icons">
+              <button className="nav-icon-btn" aria-label="Search products">
+                <Search size={16} />
+              </button>
+              <button className="nav-icon-btn" aria-label="Shopping bag">
+                <ShoppingBag size={16} />
+              </button>
+              {/* Hamburger — visible only on mobile via CSS */}
+              <button
+                className="nav-icon-btn mobile-menu-icon"
+                aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-drawer"
+                onClick={() => setMenuOpen(o => !o)}
+              >
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
-          <div className="global-nav-links">
-            <a href="#">Home</a>
-            <a href="#about">About Us</a>
-            <a href="#products">Products</a>
-            <a href="#contact">Contact</a>
+        </nav>
+
+        {/* Sub Navigation (frosted) */}
+        <div className="sub-nav-frosted">
+          <div className="sub-nav-content">
+            <div className="tagline">Store</div>
+            <button className="button-primary-sm">Buy</button>
           </div>
-          <div className="nav-icons">
-            <button className="nav-icon-btn" aria-label="Search products">
-              <Search size={16} />
-            </button>
-            <button className="nav-icon-btn" aria-label="Shopping bag">
-              <ShoppingBag size={16} />
-            </button>
-            <button className="nav-icon-btn mobile-menu-icon" aria-label="Open navigation menu" style={{ display: 'none' }}>
-              <Menu size={20} />
-            </button>
-          </div>
+        </div>
+      </header>
+
+      {/* ── Mobile Drawer ── */}
+      {/* Backdrop overlay */}
+      <div
+        className={`drawer-overlay${menuOpen ? ' drawer-overlay--open' : ''}`}
+        aria-hidden="true"
+        onClick={closeMenu}
+      />
+
+      {/* Slide-in drawer panel */}
+      <nav
+        id="mobile-drawer"
+        className={`mobile-drawer${menuOpen ? ' mobile-drawer--open' : ''}`}
+        aria-label="Mobile navigation"
+        aria-hidden={!menuOpen}
+      >
+        <div className="mobile-drawer-header">
+          <span className="nav-brand" style={{ color: 'var(--c-ink)' }}>RNT FOOTWEAR</span>
+          <button className="drawer-close-btn" aria-label="Close navigation menu" onClick={closeMenu}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <ul className="mobile-drawer-links" role="list">
+          <li><a href="#" onClick={closeMenu}>Home</a></li>
+          <li><a href="#about" onClick={closeMenu}>About Us</a></li>
+          <li><a href="#products" onClick={closeMenu}>Products</a></li>
+          <li><a href="#contact" onClick={closeMenu}>Contact</a></li>
+        </ul>
+
+        <div className="mobile-drawer-footer">
+          <button className="button-primary" style={{ width: '100%' }}>Shop Now</button>
         </div>
       </nav>
-
-      {/* Sub Navigation (Sticky) */}
-      <div className="sub-nav-frosted">
-        <div className="sub-nav-content">
-          <div className="tagline">Store</div>
-          <button className="button-primary-sm">Buy</button>
-        </div>
-      </div>
 
       {/* Hero Section */}
       <section className="product-tile-dark fade-up-element">
@@ -69,7 +134,7 @@ function App() {
       <section id="about" className="product-tile-parchment section-pb fade-up-element">
         <h2 className="display-lg fade-up-element">Why Choose Us.</h2>
         <p className="lead max-w-prose fade-up-element" style={{ transitionDelay: '0.1s' }}>Market-leading quality since 2004.</p>
-        
+
         <div className="store-grid section-mt">
           <div className="store-utility-card text-center items-center fade-up-element" style={{ transitionDelay: '0.2s' }}>
             <h3 className="body-strong feature-card-title">Quality Assurance</h3>
@@ -90,15 +155,15 @@ function App() {
       <section id="products" className="product-tile-light section-pb fade-up-element">
         <h2 className="display-lg fade-up-element">Featured Products.</h2>
         <p className="lead fade-up-element" style={{ transitionDelay: '0.1s' }}>Discover our most popular styles.</p>
-        
+
         <div className="store-grid section-mt">
           {[
-            { name: "RNT Diva 100", img: "/product_diva_1788886566197.jpg", category: "Women's Sports", price: "₹1,500" },
-            { name: "Premium Derby", img: "/product_school_1788886581361.jpg", category: "School Shoes", price: "₹1,200" },
-            { name: "Urban Explorer", img: "/product_casual_1788886597764.jpg", category: "Men's Casual", price: "₹1,800" },
-            { name: "Active Kids Pro", img: "/product_kids_sports.jpg", category: "Kids Sports", price: "₹999" },
-            { name: "Aero Max EVA", img: "/product_mens_eva.jpg", category: "Men's Sports", price: "₹1,600" },
-            { name: "Cloud Runner", img: "/product_womens_running.jpg", category: "Running Shoes", price: "₹1,450" },
+            { name: "RNT Diva 100",    img: "/product_diva_1788886566197.jpg",   category: "Women's Sports", price: "₹1,500" },
+            { name: "Premium Derby",   img: "/product_school_1788886581361.jpg",  category: "School Shoes",   price: "₹1,200" },
+            { name: "Urban Explorer",  img: "/product_casual_1788886597764.jpg",  category: "Men's Casual",   price: "₹1,800" },
+            { name: "Active Kids Pro", img: "/product_kids_sports.jpg",           category: "Kids Sports",    price: "₹999"   },
+            { name: "Aero Max EVA",    img: "/product_mens_eva.jpg",              category: "Men's Sports",   price: "₹1,600" },
+            { name: "Cloud Runner",    img: "/product_womens_running.jpg",        category: "Running Shoes",  price: "₹1,450" },
           ].map((product, idx) => (
             <div key={idx} className="store-utility-card fade-up-element" style={{ transitionDelay: `${0.1 * (idx % 3)}s` }}>
               <img src={product.img} alt={product.name} loading="lazy" />
@@ -114,7 +179,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
+      <footer className="footer" id="contact">
         <div className="footer-content">
           <div className="footer-grid">
             <div className="footer-col">
