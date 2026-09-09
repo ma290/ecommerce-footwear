@@ -148,3 +148,50 @@ button {
 .section {
   padding: 80px 0;
 }
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+  .hero-title {
+    font-size: 2.8rem !important;
+  }
+  .hero-subtitle {
+    margin: 0 auto 30px auto !important;
+  }
+  .btn-group {
+    justify-content: center;
+  }
+  .hero-stats {
+    justify-content: center;
+    margin-top: 30px !important;
+  }
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+  .nav-links {
+    display: none !important;
+  }
+  .mobile-menu-icon {
+    display: block !important;
+  }
+  .hero-image img {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  .hero-content {
+    padding-top: 20px;
+  }
+  .section {
+    padding: 40px 0;
+  }
+  .main-nav {
+    padding: 15px !important;
+  }
+}

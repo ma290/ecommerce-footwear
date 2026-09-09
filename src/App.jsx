@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="app-container">
       {/* Navigation */}
-      <nav className="glass-panel" style={{ position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '1200px', zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px' }}>
+      <nav className="glass-panel main-nav" style={{ position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '1200px', zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 30px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <h1 style={{ margin: 0, fontSize: '24px', letterSpacing: '1px' }} className="text-gradient">RNT FOOTWEAR</h1>
         </div>
@@ -38,26 +38,26 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="section" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', paddingTop: '120px' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
+      <section className="section hero-section" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', paddingTop: '120px' }}>
+        <div className="container hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
           <div className="hero-content animate-fade-in">
             <div style={{ display: 'inline-block', padding: '8px 16px', background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-color)', borderRadius: '20px', fontWeight: 600, marginBottom: '20px', border: '1px solid var(--accent-glow)' }}>
               New Collection 2026
             </div>
-            <h1 style={{ fontSize: '4.5rem', lineHeight: 1.1, marginBottom: '24px' }}>
+            <h1 className="hero-title" style={{ fontSize: '4.5rem', lineHeight: 1.1, marginBottom: '24px' }}>
               Step Into <br/><span className="text-gradient">The Future</span>
             </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '40px', maxWidth: '450px' }}>
+            <p className="hero-subtitle" style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '40px', maxWidth: '450px' }}>
               Premium Manufacturer of Children's School Shoes, Sports Shoes, and Casual Footwear. Experience comfort designed for tomorrow.
             </p>
-            <div style={{ display: 'flex', gap: '20px' }}>
+            <div className="btn-group" style={{ display: 'flex', gap: '20px' }}>
               <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 Explore Collection <ArrowRight size={18} />
               </button>
               <button className="btn-outline">Watch Video</button>
             </div>
             
-            <div style={{ display: 'flex', gap: '40px', marginTop: '60px' }}>
+            <div className="hero-stats" style={{ display: 'flex', gap: '40px', marginTop: '60px' }}>
               <div>
                 <h3 style={{ fontSize: '2rem', margin: 0 }}>20+</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Years Experience</p>
@@ -85,7 +85,7 @@ function App() {
             <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>Established in 2004, Anjaniputra Paduka delivers market-leading quality with exceptional durability for daily wear.</p>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+          <div className="features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
             <div className="glass-panel" style={{ padding: '40px 30px', textAlign: 'center', transition: 'transform 0.3s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform='translateY(-10px)'} onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}>
               <ShieldCheck size={48} color="var(--accent-color)" style={{ marginBottom: '20px' }} />
               <h3 style={{ marginBottom: '15px', fontSize: '1.5rem' }}>Quality Assurance</h3>
@@ -140,7 +140,7 @@ function App() {
 
       {/* Footer */}
       <footer style={{ background: 'var(--bg-surface)', padding: '60px 0 30px', marginTop: '60px', borderTop: '1px solid var(--border-color)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px', marginBottom: '40px' }}>
+        <div className="container footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px', marginBottom: '40px' }}>
           <div>
             <h2 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '20px' }}>RNT FOOTWEAR</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>RAJ Footwear in Nangloi, Delhi is one of the best Manufacturer, Supplier and Wholesaler of Shoes.</p>
