@@ -1,6 +1,64 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { ShoppingBag, Search, Menu, X, ArrowUp, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
 import './index.css';
+
+// Helper to render animated text reveal
+const renderAnimatedText = (text) => (
+  <span className="animated-text">
+    {text.split('').map((char, index) => (
+      <span key={index} className="char" style={{ animationDelay: `${index * 0.04}s` }}>
+        {char === ' ' ? '\u00A0' : char}
+      </span>
+    ))}
+  </span>
+);
+
+// Testimonial Data
+const TESTIMONIALS = [
+  { text: "These shoes are exactly what I needed for my daily commute. Superior comfort!", author: "Aman S." },
+  { text: "My kids love their school shoes. They are durable and look great even after months.", author: "Priya M." },
+  { text: "Fast delivery and amazing customer support. Will definitely order again.", author: "Rahul T." }
+];
+
+// Animated Counter Component to prevent App re-renders
+const AnimatedCounter = () => {
+  const [count, setCount] = useState(0);
+  const counterRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && count === 0) {
+          let start = 0;
+          const end = 50000;
+          const duration = 2000;
+          const increment = end / (duration / 16);
+          const animate = () => {
+            start += increment;
+            if (start < end) {
+              setCount(Math.floor(start));
+              requestAnimationFrame(animate);
+            } else {
+              setCount(end);
+            }
+          };
+          requestAnimationFrame(animate);
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    if (counterRef.current) observer.observe(counterRef.current);
+    return () => observer.disconnect();
+  }, [count]);
+
+  return (
+    <div className="stats-counter fade-up-element" ref={counterRef} style={{ transitionDelay: '0.15s' }}>
+      <h2 className="hero-display text-primary">{count.toLocaleString()}+</h2>
+      <p className="body-strong">Happy Customers Worldwide</p>
+    </div>
+  );
+};
 
 // T2-2: Product Data Model
 const PRODUCTS = [
@@ -53,6 +111,32 @@ function App() {
   // T3-3: Back to top state
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  // Product gallery states
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeColors, setActiveColors] = useState({});
+
+  // Refs for high-frequency DOM manipulation
+  const cursorRef = useRef(null);
+  const stickyShoeRef = useRef(null);
+
+  // Testimonials state
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+
+  // Navbar shrunk state
+  const [isNavShrunk, setIsNavShrunk] = useState(false);
+
+  // Hero parallax ref
+  const heroGalleryRef = useRef(null);
+
+  const handleHeroMouseMove = useCallback((e) => {
+    if (!heroGalleryRef.current) return;
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = (clientX / innerWidth - 0.5) * 40;
+    const y = (clientY / innerHeight - 0.5) * 40;
+    heroGalleryRef.current.style.transform = `translate(${x}px, ${y}px)`;
+  }, []);
+
   // Close overlays on Escape key
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -75,6 +159,25 @@ function App() {
     }
   }, [menuOpen, cartOpen, selectedProduct]);
 
+  // Custom cursor movement
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX - 12}px, ${e.clientY - 12}px, 0)`;
+      }
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+
+  // Testimonial auto-scroll
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Scroll observer for animations and Back-To-Top
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -88,7 +191,13 @@ function App() {
     document.querySelectorAll('.fade-up-element').forEach((el) => observer.observe(el));
     
     const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500);
+      const sy = window.scrollY;
+      setShowBackToTop(sy > 500);
+      setIsNavShrunk(sy > 50);
+
+      if (stickyShoeRef.current) {
+        stickyShoeRef.current.style.transform = `rotate(${sy * 0.1}deg)`;
+      }
     };
     window.addEventListener('scroll', handleScroll);
     
@@ -146,9 +255,11 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Custom Cursor */}
+      <div className="custom-cursor" ref={cursorRef} />
 
       {/* ── Sticky Header: global-nav + sub-nav stacked ── */}
-      <header className="sticky-header">
+      <header className={`sticky-header ${isNavShrunk ? 'shrunk-nav' : ''}`}>
         {/* Global Navigation */}
         <nav className="global-nav" aria-label="Main navigation">
           <div className="global-nav-content">
@@ -296,15 +407,20 @@ function App() {
       </div>
 
       {/* Hero Section */}
-      <section className="product-tile-dark fade-up-element section-transition">
-        <h1 className="hero-display fade-up-element" style={{ transitionDelay: '0.1s' }}>Step Into The Future.</h1>
+      <section
+        className="product-tile-dark fade-up-element section-transition hero-section-full"
+        onMouseMove={handleHeroMouseMove}
+      >
+        <h1 className="hero-display fade-up-element" style={{ transitionDelay: '0.1s' }}>
+          {renderAnimatedText("Step Into The Future.")}
+        </h1>
         <p className="lead fade-up-element" style={{ transitionDelay: '0.2s' }}>Premium Footwear for Tomorrow.</p>
         <div className="cta-group fade-up-element" style={{ transitionDelay: '0.3s' }}>
-          <button className="button-primary" onClick={() => document.getElementById('products').scrollIntoView()}>Learn more</button>
+          <button className="button-primary btn-hover-fx" onClick={() => document.getElementById('products').scrollIntoView()}>Learn more</button>
           <button className="text-link-on-dark-btn" onClick={() => document.getElementById('products').scrollIntoView()}>Buy &gt;</button>
         </div>
         <div className="img-hero-container fade-up-element" style={{ transitionDelay: '0.4s' }}>
-          <div className="hero-gallery">
+          <div className="hero-gallery" ref={heroGalleryRef} style={{ transition: 'transform 0.1s ease-out' }}>
             {HERO_IMAGES.map((src, i) => (
               <img 
                 key={src} 
@@ -323,10 +439,30 @@ function App() {
         </div>
       </section>
 
+      {/* Sticky Shoe Showcase Section */}
+      <section className="sticky-showcase-container">
+        <div className="sticky-showcase-content">
+          <div className="sticky-showcase-info fade-up-element">
+            <h2 className="display-lg">360° Perfection.</h2>
+            <p className="lead">Every angle designed for performance.</p>
+          </div>
+          <div className="sticky-showcase-img">
+            <img
+              src="/product_mens_eva.jpg"
+              alt="360 view of shoe"
+              className="product-shadow"
+              ref={stickyShoeRef}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
-      <section id="about" className="product-tile-parchment section-pb fade-up-element section-transition">
+      <section id="about" className="product-tile-parchment section-pb fade-up-element section-transition parallax-bg">
         <h2 className="display-lg fade-up-element">Why Choose Us.</h2>
         <p className="lead max-w-prose fade-up-element" style={{ transitionDelay: '0.1s' }}>Market-leading quality since 2004.</p>
+
+        <AnimatedCounter />
 
         <div className="store-grid section-mt">
           <div className="store-utility-card text-center items-center fade-up-element" style={{ transitionDelay: '0.2s' }}>
@@ -347,28 +483,100 @@ function App() {
       {/* Featured Products */}
       <section id="products" className="product-tile-light section-pb fade-up-element section-transition">
         <h2 className="display-lg fade-up-element">Featured Products.</h2>
-        <p className="lead fade-up-element" style={{ transitionDelay: '0.1s' }}>Discover our most popular styles.</p>
+        <p className="lead fade-up-element mb-xs" style={{ transitionDelay: '0.1s' }}>Discover our most popular styles.</p>
 
-        <div className="store-grid section-mt">
-          {PRODUCTS.map((product, idx) => (
-            <div 
-              key={product.id} 
-              className="store-utility-card fade-up-element interactive-card" 
-              style={{ transitionDelay: `${0.1 * (idx % 3)}s` }}
-              onClick={() => setSelectedProduct(product)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && setSelectedProduct(product)}
+        <div className="filter-controls fade-up-element" style={{ transitionDelay: '0.15s' }}>
+          {['All', 'Sports', 'Casual', 'School'].map(filter => (
+            <button
+              key={filter}
+              className={`filter-btn ${activeFilter === filter ? 'active' : ''}`}
+              onClick={() => setActiveFilter(filter)}
             >
-              <LoadedImage src={product.img} alt={product.name} loading="lazy" className="card-img" />
-              <p className="caption text-muted-48 text-uppercase">{product.category}</p>
-              <h3 className="body-strong mb-xs">{product.name}</h3>
-              <div className="product-card-footer">
-                <span className="body">{formatPrice(product.price)}</span>
-                <button className="button-primary-sm" onClick={(e) => { e.stopPropagation(); addToCart(product); }}>Buy</button>
-              </div>
-            </div>
+              {filter}
+            </button>
           ))}
+        </div>
+
+        <div className="horizontal-gallery-container section-mt fade-up-element" style={{ transitionDelay: '0.2s' }}>
+          <div className="horizontal-gallery">
+            {PRODUCTS.filter(p => activeFilter === 'All' || p.category.includes(activeFilter)).map((product) => (
+              <div
+                key={product.id}
+                className="store-utility-card gallery-card interactive-card"
+                onClick={() => setSelectedProduct({
+                  ...product,
+                  img: activeColors[product.id] || product.img
+                })}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setSelectedProduct(product)}
+              >
+                <div className="card-img-container">
+                  <LoadedImage
+                    src={activeColors[product.id] || product.img}
+                    alt={product.name}
+                    loading="lazy"
+                    className="card-img gallery-img-zoom"
+                  />
+                  <div className="quick-add-overlay">
+                    <button className="button-primary w-full" onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart({ ...product, img: activeColors[product.id] || product.img });
+                    }}>
+                      Quick Add
+                    </button>
+                  </div>
+                </div>
+
+                <div className="card-content">
+                  <div className="color-swatches" onClick={e => e.stopPropagation()}>
+                    <button
+                      className={`swatch swatch-default ${(!activeColors[product.id] || activeColors[product.id] === product.img) ? 'active' : ''}`}
+                      aria-label="Default color"
+                      onClick={() => setActiveColors(prev => ({...prev, [product.id]: product.img}))}
+                    />
+                    <button
+                      className={`swatch swatch-alt ${activeColors[product.id] === '/product_mens_eva.jpg' ? 'active' : ''}`}
+                      aria-label="Alternate color"
+                      onClick={() => setActiveColors(prev => ({...prev, [product.id]: '/product_mens_eva.jpg'}))}
+                    />
+                  </div>
+
+                  <p className="caption text-muted-48 text-uppercase mt-xs">{product.category}</p>
+                  <h3 className="body-strong mb-xs">{product.name}</h3>
+                  <div className="product-card-footer">
+                    <span className="body">{formatPrice(product.price)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="product-tile-parchment section-pb fade-up-element section-transition">
+        <h2 className="display-lg fade-up-element text-center">What Our Customers Say.</h2>
+        <div className="testimonials-container section-mt">
+          <div className="testimonials-slider" style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}>
+            {TESTIMONIALS.map((t, idx) => (
+              <div key={idx} className="testimonial-slide">
+                <p className="display-md text-primary">"{t.text}"</p>
+                <p className="body-strong mt-xs">— {t.author}</p>
+              </div>
+            ))}
+          </div>
+          <div className="hero-gallery-controls mt-xs">
+            {TESTIMONIALS.map((_, i) => (
+              <button
+                key={i}
+                className={`gallery-dot ${i === testimonialIndex ? 'active' : ''}`}
+                onClick={() => setTestimonialIndex(i)}
+                aria-current={testimonialIndex === i}
+                style={{ backgroundColor: i === testimonialIndex ? 'var(--c-primary)' : 'var(--c-ink-muted-48)' }}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
