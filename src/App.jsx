@@ -408,7 +408,7 @@ function App() {
 
       {/* Hero Section */}
       <section
-        className="product-tile-dark fade-up-element section-transition hero-section-full"
+        className="product-tile-dark section-transition hero-section-full"
         onMouseMove={handleHeroMouseMove}
       >
         <h1 className="hero-display fade-up-element" style={{ transitionDelay: '0.1s' }}>
@@ -458,7 +458,7 @@ function App() {
       </section>
 
       {/* Features Section */}
-      <section id="about" className="product-tile-parchment section-pb fade-up-element section-transition parallax-bg">
+      <section id="about" className="product-tile-parchment section-pb section-transition parallax-bg">
         <h2 className="display-lg fade-up-element">Why Choose Us.</h2>
         <p className="lead max-w-prose fade-up-element" style={{ transitionDelay: '0.1s' }}>Market-leading quality since 2004.</p>
 
@@ -481,7 +481,7 @@ function App() {
       </section>
 
       {/* Featured Products */}
-      <section id="products" className="product-tile-light section-pb fade-up-element section-transition">
+      <section id="products" className="product-tile-light section-pb section-transition">
         <h2 className="display-lg fade-up-element">Featured Products.</h2>
         <p className="lead fade-up-element mb-xs" style={{ transitionDelay: '0.1s' }}>Discover our most popular styles.</p>
 
@@ -555,7 +555,7 @@ function App() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="product-tile-parchment section-pb fade-up-element section-transition">
+      <section className="product-tile-parchment section-pb section-transition">
         <h2 className="display-lg fade-up-element text-center">What Our Customers Say.</h2>
         <div className="testimonials-container section-mt">
           <div className="testimonials-slider" style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}>
